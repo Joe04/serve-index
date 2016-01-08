@@ -191,7 +191,7 @@ serveIndex.html = function _html(req, res, files, next, dir, showUp, icons, path
 
     // sort file list
     fileList.sort(fileSort);
-    if (reverse) files.reverse();
+    if (reverse) fileList.reverse();
 
     // read stylesheet
     fs.readFile(stylesheet, 'utf8', function (err, style) {
