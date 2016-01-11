@@ -152,7 +152,7 @@ function serveIndex(root, options) {
         if (!hidden) files = removeHidden(files);
         if (reverse) files.reverse();
         if (filter) files = files.filter(function(filename, index, list) {
-          return filter(filename, index, list, path, req.query.page, req.query.search);
+          return filter(filename, index, list, path, req);
         });
         files.sort();
 
