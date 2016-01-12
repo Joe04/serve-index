@@ -194,6 +194,11 @@ serveIndex.html = function _html(req, res, files, next, dir, showUp, icons, path
     fileList.sort(fileSort);
     if (reverse) fileList.reverse();
 
+    // Don't reverse the link to parent directory
+    if (fileList[fileList.length -1].name === '..') {
+      fileList.unshift(fileList.pop());
+    }
+
     // read stylesheet
     fs.readFile(stylesheet, 'utf8', function (err, style) {
       if (err) return next(err);
