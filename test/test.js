@@ -26,6 +26,15 @@ describe('serveIndex(root)', function () {
     .expect(200, done)
   })
 
+  it('should include security header', function (done) {
+    var server = createServer()
+
+    request(server)
+    .get('/')
+    .expect('X-Content-Type-Options', 'nosniff')
+    .expect(200, done)
+  })
+
   it('should serve a directory index', function (done) {
     var server = createServer()
 
@@ -67,6 +76,14 @@ describe('serveIndex(root)', function () {
     .expect(400, done)
   })
 
+  it('should deny path that does not decode', function (done) {
+    var server = createServer()
+
+    request(server)
+      .head('/%FF')
+      .expect(400, done)
+  })
+
   it('should deny path outside root', function (done) {
     var server = createServer()
 
@@ -84,11 +101,11 @@ describe('serveIndex(root)', function () {
   })
 
   it('should treat an ENAMETOOLONG as a 414', function (done) {
-    var path = Array(11000).join('foobar')
-    var server = createServer()
+    var dir = path.join(fixtures, Array(10000).join('/foobar'))
+    var server = createServer(dir)
 
     request(server)
-    .get('/' + path)
+    .get('/')
     .expect(414, done)
   })
 
@@ -117,6 +134,36 @@ describe('serveIndex(root)', function () {
         .expect(/さくら\.txt/)
         .expect(200, done)
       });
+
+      it('should include security header', function (done) {
+        var server = createServer()
+
+        request(server)
+        .get('/')
+        .set('Accept', 'application/json')
+        .expect('X-Content-Type-Options', 'nosniff')
+        .expect(200, done)
+      })
+
+      it('should sort folders first', function (done) {
+        request(createServer())
+          .get('/')
+          .set('Accept', 'application/json')
+          .expect(200)
+          .expect('Content-Type', 'application/json; charset=utf-8')
+          .expect([
+            '#directory',
+            'collect',
+            'g# %3 o & %2525 %37 dir',
+            'users',
+            'file #1.txt',
+            'foo & bar',
+            'nums',
+            'todo.txt',
+            'さくら.txt'
+          ])
+          .end(done)
+      })
     });
 
     describe('when Accept: text/html is given', function () {
@@ -135,6 +182,16 @@ describe('serveIndex(root)', function () {
         .expect(/<a href="\/%E3%81%95%E3%81%8F%E3%82%89\.txt"/)
         .end(done);
       });
+
+      it('should include security header', function (done) {
+        var server = createServer()
+
+        request(server)
+        .get('/')
+        .set('Accept', 'text/html')
+        .expect('X-Content-Type-Options', 'nosniff')
+        .expect(200, done)
+      })
 
       it('should property escape file names', function (done) {
         var server = createServer()
@@ -194,6 +251,37 @@ describe('serveIndex(root)', function () {
         .expect(/さくら\.txt/)
         .end(done);
       });
+
+      it('should include security header', function (done) {
+        var server = createServer()
+
+        request(server)
+        .get('/')
+        .set('Accept', 'text/plain')
+        .expect('X-Content-Type-Options', 'nosniff')
+        .expect(200, done)
+      })
+
+      it('should sort folders first', function (done) {
+        request(createServer())
+          .get('/')
+          .set('Accept', 'text/plain')
+          .expect(200)
+          .expect('Content-Type', 'text/plain; charset=utf-8')
+          .expect([
+            '#directory',
+            'collect',
+            'g# %3 o & %2525 %37 dir',
+            'users',
+            'file #1.txt',
+            'foo & bar',
+            'nums',
+            'todo.txt',
+            'さくら.txt',
+            ''
+          ].join('\n'))
+          .end(done)
+      })
     });
 
     describe('when Accept: application/x-bogus is given', function () {
