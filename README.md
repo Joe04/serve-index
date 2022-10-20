@@ -1,3 +1,12 @@
+🗃️ Archived on 2022-10-20.
+
+⚠️ **Usages**
+* kyt_automation. NPM dependency.
+```
+"serve-index": "git://github.com/kyto-gmbh/serve-index.git#1.9.1-fix",
+```
+---
+
 # serve-index
 
 [![NPM Version][npm-image]][npm-url]
